@@ -1,0 +1,15 @@
+---
+  share_root: /mnt/share/
+  share_buh: {{ share_root }}/Buh
+  share_fin: {{ share_root }}/Fin
+  share_exc: {{ share_root }}/Exchange
+  backup_folder: /mnt/backup
+  domain_name: workgroup
+  server_LDAP: dc.example.com
+  name_realm: example.com
+  Group_all_users: AllUsers
+  Group_buh: Buh
+  Group_fin: Fin
+  FS_buh: {{ share_root }}/{{Group_buh}}.fs
+  FS_fin: {{ share_root }}/{{Group_fin}}.fs
+  FS_Exchange: {{ share_root }}/Exchange.fs

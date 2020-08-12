@@ -1,0 +1,14 @@
+---
+
+- name: "Configure Zabbix repository"
+  import_tasks: repository.yml
+
+- name: "Install and configure zabbix-agent"
+  import_tasks: zabbix-agent.yml
+
+- name: Open ports in iptables
+  iptables_raw:
+    name: zabbix_agent_open_ports
+    state: "{{ zabbix_agent_open_ports | ternary('present', 'absent') }}"
+    rules: |
+      -A INPUT -p tcp -m multiport --dports {{ zabbix_agent_open_ports | join(',') }} -j ACCEPT

@@ -1,0 +1,7 @@
+---
+
+- name: "Restart Zabbix agent"
+  service:
+    name: "{{ zabbix_agent_pkg_name }}"
+    state: restarted
+

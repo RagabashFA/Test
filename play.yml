@@ -1,0 +1,15 @@
+---
+- hosts: ctrl
+  become: yes
+  become_user:
+    root
+  remote_user:
+    ansible
+  roles:
+   - epel
+   - nginx
+   - samba
+   - Archive
+   - zabbix-agent
+  vars:
+    nginx_user: nginx

@@ -1,0 +1,14 @@
+---
+- name: Install Nginx
+  yum:
+    name=nginx
+    state=latest
+    enabled=yes
+  notify:
+    - nginx systemd
+
+- name: Generate nginx.conf
+  template:
+    src=templates/nginx.j2
+    dest=/etc/nginx/nginx.conf
+    mode=0555

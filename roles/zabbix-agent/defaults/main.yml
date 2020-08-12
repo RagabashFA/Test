@@ -1,0 +1,41 @@
+---
+zabbix_agent_server_ip: "192.168.0.200"
+zabbix_agent_server_fqdn: "zabbix.vimbox.com"
+zabbix_agent_release: 3.2
+zabbix_agent_pkg_name: zabbix-agent
+zabbix_agent_user: zabbix
+zabbix_agent_repo_url: "http://repo.zabbix.com"
+zabbix_agent_hostname: ""
+zabbix_agent_etc_path: "/etc/zabbix"
+zabbix_agent_scripts_path: "{{ zabbix_agent_etc_path }}/scripts"
+zabbix_agent_home_path: "/var/lib/zabbix"
+zabbix_agent_include_path: "{{ zabbix_agent_etc_path }}/zabbix_agentd.d"
+zabbix_agent_log_path: "/var/log/zabbix"
+zabbix_agent_pid_path: "/var/run/zabbix"
+zabbix_agent_php_strend: " "
+zabbix_agent_skip_check: False
+zabbix_agent_need_docker: False
+
+zabbix_agent_addn_packages:
+  - curl
+  - fping
+  - libdbd-pg-perl
+  - libgetopt-long-descriptive-perl
+  - libswitch-perl
+  - libuser
+  - sysstat
+
+zabbix_agent_config:
+  Server: "{{ zabbix_agent_server_ip }}"
+  ServerActive: "{{ zabbix_agent_server_ip }}"
+  Timeout: "{{ zabbix_agent_config_timeout | default(30) }}"
+  PidFile: "{{ zabbix_agent_pid_path }}/zabbix_agentd.pid"
+  LogFile: "{{ zabbix_agent_log_path }}/zabbix_agentd.log"
+  LogFileSize: 10
+  User: "{{ zabbix_agent_user }}"
+  AllowRoot: 0
+  UnsafeUserParameters: 1
+  Include: "{{ zabbix_agent_include_path }}/*.conf"
+
+zabbix_agent_open_ports:
+  - 10050

@@ -1,0 +1,6 @@
+
+#Создание архива
+find {{ share_exc }}/ -type f -mtime +7 -exec tar -czvf {{ backup_folder }}/{{ share_exc }}-`date +%F--%H-%M`.tar.gz -C {{ share_exc }} ';'
+
+#Удаление архивов, которые лежат дольше чем 14 дней хранения архивов.
+find {{ backup_folder }}/ -name '*gz' -type f -mtime +14 -execdir rm {} +

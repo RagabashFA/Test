@@ -1,0 +1,9 @@
+{% if zabbix_agent_hostname != "" %}
+Hostname = {{ zabbix_agent_hostname }}
+{% else %}
+HostnameItem = {% raw %}system.run[hostname -f]{% endraw %}
+{% endif %}
+
+{% for param in zabbix_agent_config|dictsort -%}
+{{ param.0 }} = {{ param.1 }}
+{% endfor -%}

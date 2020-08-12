@@ -1,0 +1,37 @@
+[global]
+        workgroup = {{ domain_name }}
+        password server = {{ server_LDAP }}
+        realm = {{ name_realm }}
+        security = ads
+        idmap config * : range = 16777216‐33554431
+        template shell = /bin/bash
+        kerberos method = secrets only
+        winbind use default domain = true
+        winbind offline logon = false
+        winbind separator = +
+        netbios name = files
+        encrypt passwords = yes
+        winbind nss info = rfc2307
+        winbind trusted domains only = no
+        winbind enum users  = yes
+        winbind enum groups = yes
+[Exchange]
+        comment = Exchange
+        path = {{ share_exc }}
+        browseable = yes
+        read only = no
+        create mask = 0720
+        directory mask = 720
+        write list = @"{{ domain_name }}+domain {{ Group_all_users }}"
+[Buh]
+        comment = for Buh
+        path = {{ share_buh }}
+        write list = @"{{ domain_name }}+domain {{ Group_buh }}"
+        read list = @"{{ domain_name }}+domain {{ Group_fin }}"
+        read only = No
+[Fin]
+        comment = for Fin
+        path = {{ share_fin }}
+        read only = no
+        write list = @"{{ domain_name }}+domain {{ Group_fin }}"
+        read list = @"{{ domain_name }}+domain {{ Group_buh }}"

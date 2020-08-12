@@ -1,0 +1,59 @@
+---
+
+- block:
+    - name: "Install Zabbix agent"
+      apt:
+        yum: "{{ zabbix_agent_pkg_name }}"
+        state: present
+        enabled: yes
+      register: agent_installed
+
+    - block:
+        - name: "Stop zabbix-agentd service"
+          service:
+            name: "{{ zabbix_agent_pkg_name }}"
+            state: stopped
+
+        - name: "Ensure Zabbix user exists and configured"
+          user:
+            name: "{{ zabbix_agent_user }}"
+            home: "{{ zabbix_agent_home_path }}"
+            shell: /bin/false
+            state: present
+
+      when: agent_installed.changed
+
+    - name: "Install additional packages"
+      apt:
+        name: "{{ zabbix_agent_addn_packages }}"
+        state: present
+
+- name: "Configure directories"
+  file:
+    name: "{{item}}"
+    state: directory
+    owner: "{{ zabbix_agent_user }}"
+    group: "{{ zabbix_agent_user }}"
+    mode: 0755
+  loop:
+    - "{{ zabbix_agent_home_path }}"
+    - "{{ zabbix_agent_include_path }}"
+    - "{{ zabbix_agent_log_path }}"
+    - "{{ zabbix_agent_pid_path }}"
+    - "{{ zabbix_agent_scripts_path }}"
+
+- name: "Generate main zabbix-agent configuration file"
+  template:
+    src: zabbix-agentd.conf.j2
+    dest: "{{ zabbix_agent_etc_path }}/zabbix_agentd.conf"
+    owner: "{{ zabbix_agent_user }}"
+    group: "{{ zabbix_agent_user }}"
+    mode: 0644
+  notify: "Restart Zabbix agent"
+
+- name: "Start Zabbix agent"
+  service:
+    name: "{{ zabbix_agent_pkg_name }}"
+    state: started
+
+- meta: flush_handlers

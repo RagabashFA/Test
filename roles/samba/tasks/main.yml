@@ -1,0 +1,112 @@
+---
+- name: SMB + Integration AD
+  become: yes
+  tasks:
+    - name: Install Soft
+      yum: name={{ item }} state=present enabled=yes
+      with_item:
+      - ntp
+      - acpid
+      - elinks
+      - acl
+      - bash‐completion
+      - krb5‐workstation
+      - samba
+      - samba‐winbind
+      - samba‐winbind‐clients
+      - samba‐client
+      - samba‐common
+      - wget
+      - vim
+      - ntpdate
+      - ntp
+      - mc
+    - Name: Generate conf for samba
+      template:
+        src: samba.j2
+        dest: /etc/samba/smb.conf
+    - block: Create folders
+      - name: Root for share
+        file:
+          path: {{ share_root }}
+      - name: Backup folder
+        file:
+          path: {{ backup_folder }}
+      - name: Share for Buh
+        file:
+          path: {{ share_buh }}
+          mode: 0742
+      - name: Share for Fin
+        file:
+          path: {{ share_fin }}
+          mode: 0742
+      - name: Share for Fin
+        file:
+          path: {{ share_exc }}
+          mode: 0722
+      state: directory
+    - name: Make quotes
+      command: >
+          dd if=/dev/zero of={{ FS_buh }} bs=1024 count=20971520
+          dd if=/dev/zero of={{ FS_fin }} bs=1024 count=10485760
+          dd if=/dev/zero of={{ FS_Exchange }} bs=1024 count=10485760
+    - block:  format to ext3
+        filesystem:
+          dev: {{ FS_buh }}
+        filesystem:
+          dev: {{ FS_fin }}
+        filesystem:
+          dev: {{ FS_Exchange }}
+      fstype: ext3
+    - block: mount
+        mount:
+          name: Buh
+          src: "{{ FS_buh }}"
+          path: "{{ share_buh }}"
+        mount:
+          name: Exchange
+          src: "{{ FS_Exchange }}"
+          path: "{{ share_exc }}"
+        mount:
+          name: Fin
+          src: "{{ FS_fin }}"
+          path: "{{ share_fin }}"
+      fstype: ext3
+    - name: Generate script
+      template:
+        src: backup.j2
+        dest: /etc/backup.sh
+    - name: Archive script
+      cron:
+        name: "Archive_Exchange"
+        hour: 0
+        minute: 0
+        user: root
+        job: "/etc/backup.sh"
+    - name: Generate conf for ntpdate
+      template:
+        src: ntp.j2
+        dest: /etc/ntp.conf
+    - name: ntpdate
+      command: ntpdate {{ server_LDAP }}
+    - name: firewall
+      firewalld:
+        service: samba
+        permanent: yes
+        state: enabled
+      Notify:
+        - Restart server
+        - wait online
+
+
+
+  handlers:
+    - name: Restart server
+      sheel: sleep 3 && reboot now
+      async: 1
+      poll: 0
+    - name: wait online
+      host: "{{ inventory_hostname }}"
+      state: started
+      delay: 5
+      timeout: 60
